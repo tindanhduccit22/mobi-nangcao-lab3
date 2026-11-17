@@ -1,8 +1,4 @@
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
-const path = require('path');
-
-const projectRoot = __dirname;
-const compassAppRoot = path.resolve(__dirname, '../online/CompassApp');
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 
 /**
  * Metro configuration
@@ -10,18 +6,6 @@ const compassAppRoot = path.resolve(__dirname, '../online/CompassApp');
  *
  * @type {import('@react-native/metro-config').MetroConfig}
  */
-const config = {
-  watchFolders: [
-    projectRoot,
-    path.resolve(compassAppRoot, 'node_modules'),
-  ],
-  resolver: {
-    nodeModulesPaths: [
-      path.resolve(projectRoot, 'node_modules'),
-      path.resolve(compassAppRoot, 'node_modules'),
-    ],
-    unstable_enableSymlinks: true,
-  },
-};
+const config = {};
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);

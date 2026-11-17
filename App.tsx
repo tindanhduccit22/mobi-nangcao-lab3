@@ -14,6 +14,7 @@ import {
   Dimensions,
   LogBox,
   NativeModules,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -298,6 +299,35 @@ function NFCScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Mock NFC Tag button for Emulator / Testing */}
+      <TouchableOpacity
+        style={styles.btnMock}
+        onPress={() => {
+          DeviceEventEmitter.emit('NFCTagDetected', {
+            id: '04:7A:B2:89:12:3C:90',
+            technologies: ['NfcA', 'IsoDep', 'Ndef'],
+            hasNdefData: true,
+            action: 'NDEF_DISCOVERED',
+            records: [
+              {
+                tnf: 1,
+                type: 'T',
+                text: 'Sinh viên: Danh Đức Tín - MSSV: 2231200120 - CSW434',
+                rawPayloadHex: '02656E44616E68204475632054696E',
+              },
+              {
+                tnf: 1,
+                type: 'U',
+                text: 'https://github.com/tindanhduccit22/mobi-nangcao-lab3',
+                rawPayloadHex: '046769746875622E636F6D',
+              },
+            ],
+          });
+        }}
+        activeOpacity={0.8}>
+        <Text style={styles.btnMockText}>🧪 Giả lập chạm thẻ NFC (Test trên máy ảo)</Text>
+      </TouchableOpacity>
+
       {/* Tag Info Card */}
       {tagInfo && <NFCTagCard tag={tagInfo} />}
     </ScrollView>
@@ -543,7 +573,7 @@ function CompassScreen() {
           onPress={handleStart}
           disabled={isRunning || !isAvailable}
           activeOpacity={0.8}>
-          <Text style={styles.btnText}>▶  Bắt đầu</Text>
+          <Text style={styles.btnText}>▶  Bắt đầu cảm biến</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.btn, styles.btnSecondary, !isRunning && styles.btnDisabled]}
@@ -552,6 +582,44 @@ function CompassScreen() {
           activeOpacity={0.8}>
           <Text style={[styles.btnText, { color: '#374151' }]}>■  Dừng</Text>
         </TouchableOpacity>
+      </View>
+
+      {/* Preset Rotation Buttons for Emulator Testing */}
+      <View style={styles.presetContainer}>
+        <Text style={styles.presetTitle}>🧪 Thử nghiệm góc la bàn (Test trên máy ảo):</Text>
+        <View style={styles.presetRow}>
+          {[
+            { label: '0° N', deg: 0 },
+            { label: '90° E', deg: 90 },
+            { label: '180° S', deg: 180 },
+            { label: '260° (Mẫu)', deg: 260 },
+            { label: '270° W', deg: 270 },
+          ].map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.presetBtn,
+                azimuth === item.deg && styles.presetBtnActive,
+              ]}
+              onPress={() => {
+                setAzimuth(item.deg);
+                setRawData({
+                  x: Math.round(Math.cos((item.deg * Math.PI) / 180) * 45 * 100) / 100,
+                  y: Math.round(Math.sin((item.deg * Math.PI) / 180) * 45 * 100) / 100,
+                  z: -15.42,
+                });
+                rotateTo(item.deg);
+              }}>
+              <Text
+                style={[
+                  styles.presetBtnText,
+                  azimuth === item.deg && styles.presetBtnTextActive,
+                ]}>
+                {item.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {/* Raw sensor data */}
@@ -632,6 +700,7 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#F0F4FF',
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 28) + 8 : 0,
   },
 
   // ── Tab Bar ──
@@ -792,6 +861,65 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 14,
     fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  btnMock: {
+    width: '100%',
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1.5,
+    borderColor: '#6366F1',
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  btnMockText: {
+    color: '#4F46E5',
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  presetContainer: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  presetTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#475569',
+    marginBottom: 8,
+  },
+  presetRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  presetBtn: {
+    backgroundColor: '#F1F5F9',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+  },
+  presetBtnActive: {
+    backgroundColor: '#6366F1',
+    borderColor: '#6366F1',
+  },
+  presetBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  presetBtnTextActive: {
     color: '#FFFFFF',
   },
 
